@@ -1,131 +1,133 @@
 <!DOCTYPE html>
-<html lang = "en">
-	<head>
+<html lang="en">
+
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>Westwood Headless Hunt</title>
-		<link rel="shortcut icon" type="image/png" href="/favicon.png"/>
-    
+    <link rel="shortcut icon" type="image/png" href="/favicon.png" />
+
     <!-- CSS resources -->
-		<link rel="stylesheet" href="https://bootswatch.com/united/bootstrap.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://bootswatch.com/united/bootstrap.min.css" crossorigin="anonymous">
     <!-- end CSS resources -->
-    
+
     <!-- JS resources -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
     <!-- end JS resources -->
-    
+
     <!-- business logic -->
     <script>
-      var app = angular.module("WestwoodHeadlessApp",[]);
-      
-      app.controller("Controller", ['$scope', function($scope) {
-        $scope.tabs = [
-          { 
-          	id: "home",
-            moniker: "Home",
-            href: "#"
-          },
-        	{ 
-          	id: "pictures",
-            moniker: "Pictures",
-            href: "#"
-          },
-          { 
-          	id: "upload",
-            moniker: "Upload a picture",
-            href: "#"
-          },
-          { 
-          	id: "about",
-            moniker: "What is this?",
-            href: "#"
-          }
-        ];
-        
-        $scope.heads = [
-          {
-            id: 0,
-            name: "Alpha"
-          },
-          {
-            id: 1,
-            name: "Bravo"
-          },
-          {
-            id: 2,
-            name: "Charlie"
-          },
-          {
-            id: 3,
-            name: "Delta"
-          },
-          {
-            id: 4,
-            name: "Echo"
-          }
-        ];
-        
-        $scope.activeTab = $scope.tabs[0];
-        $scope.selectTab = function(tab) {
-          $scope.activeTab = tab;
-        };
-      }]);
-      
+        var app = angular.module("WestwoodHeadlessApp", []);
+
+        app.controller("Controller", ['$scope', function ($scope) {
+            $scope.tabs = [
+                {
+                    id: "home",
+                    moniker: "Home",
+                    href: "#"
+                },
+                {
+                    id: "pictures",
+                    moniker: "Pictures",
+                    href: "#"
+                },
+                {
+                    id: "upload",
+                    moniker: "Upload a picture",
+                    href: "#"
+                },
+                {
+                    id: "about",
+                    moniker: "What is this?",
+                    href: "#"
+                }
+            ];
+
+            $scope.heads = [
+                {
+                    id: 0,
+                    name: "Alpha"
+                },
+                {
+                    id: 1,
+                    name: "Bravo"
+                },
+                {
+                    id: 2,
+                    name: "Charlie"
+                }
+            ];
+
+            $scope.activeTab = $scope.tabs[0];
+            $scope.selectTab = function (tab) {
+                if (typeof tab === "number") {
+                    $scope.activeTab = $scope.tabs[tab];
+                } else {
+                    $scope.activeTab = tab;
+                }
+            };
+        }]);
     </script>
-    
+
     <style>
-    
-    
-  	</style>
-    
-  </head>
-  
+
+    </style>
+
+</head>
+
 <body ng-app="WestwoodHeadlessApp" ng-controller="Controller">
     <nav class="navbar navbar-default navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false"
+                    aria-controls="navbar">
             <span class="sr-only">Toggle navigation</span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Westwood Headless Hunt</a>
+                <a class="navbar-brand" href="#">Westwood Headless Hunt</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li ng-repeat="tab in tabs" ng-class="{'active': tab == activeTab}"><a href="{{tab.href}}" ng-click="selectTab(tab)">{{tab.moniker}}</a></li>
+                </ul>
+            </div>
         </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li ng-repeat="tab in tabs" ng-class="{'active': tab == activeTab}"><a href="{{tab.href}}" ng-click="selectTab(tab)">{{tab.moniker}}</a></li>
-          </ul>
-        </div>
-      </div>
     </nav>
 
     <div class="container" style="margin-top: 55px">
-      <div ng-show="activeTab.id == 'home'">
-      </div>
-
-      <div ng-show="activeTab.id == 'pictures'">
-        <div class="row">
-          <div class="col-2" ng-repeat="head in heads">
-            <div class="panel panel-primary">
-              <div class="panel-heading">{{head.name}}</div>
-              <div class="panel-body">
-
-              </div>
-          	</div>
-          </div>
+        <div ng-show="activeTab.id == 'home'">
         </div>
-      </div>
 
-      <div ng-show="activeTab.id == 'upload'">
-      </div>
+        <div ng-show="activeTab.id == 'pictures'">
+            <div style="background-color: #ececec; padding: 2px 2px 2px 2px; margin: 8px 0px 12px 0px">
+                <h3 style="text-align: center">Check out the pictures other Westwood students have taken with the Westwood Heads! Add yours to our website
+                    by <a ng-click="selectTab(2)">uploading a picture</a> with a single tap!</h3>
+            </div>
+            <div class="row">
+                <div class="col-md-4" ng-repeat="head in heads">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading" style="text-align: center">{{head.name}}</div>
+                        <div class="panel-body">
 
-      <div ng-show="activeTab.id == 'about'">
-      </div>
-  	</div>
-  </body>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div ng-show="activeTab.id == 'upload'">
+        </div>
+
+        <div ng-show="activeTab.id == 'about'">
+        </div>
+    </div>
+</body>
+
 </html>
