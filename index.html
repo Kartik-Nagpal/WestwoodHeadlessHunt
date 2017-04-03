@@ -78,7 +78,35 @@
     </script>
 
     <style>
+        .inputfile {
+            width: 0.1px;
+            height: 0.1px;
+            opacity: 0;
+            overflow: hidden;
+            position: absolute;
+            z-index: -1;
+        }
 
+        .inputfile + label {
+            font-size: 1.25em;
+            color: #333333;
+            background-color: #ececec;
+            display: inline-block;
+            width: 100%;
+            height: 300px;
+            line-height: 300px;
+            text-align:center;
+            border: 1px solid #cdcdcd;
+            border-radius: 4px;
+        }
+
+        .inputfile:focus + label,
+        .inputfile + label:hover {
+            background-color: #cdcdcd;
+        }
+        .inputfile + label {
+	        cursor: pointer; /* "hand" cursor */
+        }
     </style>
 
 </head>
@@ -138,6 +166,12 @@
             <div class="panel panel-default" style="margin-top:12px;">
                 <div class="panel-body">
                     <h3></h3>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <input type="file" name="file" id="file" class="inputfile" accept="image/*" capture="camera"></input>
+                            <label for="file">Upload a picture</label>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
