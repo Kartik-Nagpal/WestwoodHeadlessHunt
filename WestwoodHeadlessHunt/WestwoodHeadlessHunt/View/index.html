@@ -31,6 +31,8 @@
 
     <!-- business logic -->
     <script>
+        swal.setDefaults({ confirmButtonColor: '#c34113' });
+
         var app = angular.module("WestwoodHeadlessApp", ["ngAnimate"]);
 
         app.filter('range', function () {
@@ -172,17 +174,11 @@
                             head.images.reverse();
                         }, function (err) {
                             var data = err.data;
-                            if (data.error == null || data.error == undefined) {
-                                data.error = "Unknown error";
-                            }
                             swal("Oops!", "An error occurred fetching your images! (" + data.error + ") :(", "error");
                         });
                     });
                 }, function (err) {
                     var data = err.data;
-                    if (data.error == null || data.error == undefined) {
-                        data.error = "Unknown error";
-                    }
                     swal("Oops!", "An error occurred fetching your images! (" + data.error + ") :(", "error");
                 });
             };
@@ -199,7 +195,7 @@
                   showCancelButton: false,
                   closeOnConfirm: false,
                   showLoaderOnConfirm: true,
-                  confirmButtonText: "Upload"
+                  confirmButtonText: "Upload",
                 },
                 function() {
                     $http({
@@ -216,9 +212,6 @@
                         }, 2000);
                     }, function (err) {
                         var data = err.data;
-                        if (data.error == null || data.error == undefined) {
-                            data.error = "Unknown error";
-                        }
                         swal("Oops!", "An error occurred uploading your picture! (" + data.error + ") :(", "error");
                     });
                 });

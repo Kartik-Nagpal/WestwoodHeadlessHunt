@@ -148,7 +148,7 @@ namespace WestwoodHeadlessHunt.Controllers
                 System.Drawing.Imaging.Encoder encoder = System.Drawing.Imaging.Encoder.Quality;
 
                 EncoderParameters encoderParameters = new EncoderParameters(1);
-                EncoderParameter encoderParameter = new EncoderParameter(encoder, 10L);
+                EncoderParameter encoderParameter = new EncoderParameter(encoder, 20L);
                 encoderParameters.Param[0] = encoderParameter;
 
                 image.Save(Path.Combine(request.head.id.ToString(), id.ToString()), GetEncoder(ImageFormat.Jpeg), encoderParameters);
