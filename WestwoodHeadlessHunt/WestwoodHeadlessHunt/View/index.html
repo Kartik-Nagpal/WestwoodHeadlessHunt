@@ -27,6 +27,18 @@
     <script>
         var app = angular.module("WestwoodHeadlessApp", ["ngAnimate"]);
 
+        app.filter('range', function () {
+            return function (input, total) {
+                total = parseInt(total);
+
+                for (var i = 0; i < total; i++) {
+                    input.push(i);
+                }
+
+                return input;
+            };
+        });
+
         app.directive('filereader', function ($q) {
             var slice = Array.prototype.slice;
 
@@ -68,7 +80,10 @@
             }; //return
         });
 
-        app.controller("Controller", ["$scope", "$http", function ($scope, $http) {
+        app.controller("Controller", ["$scope", "$http", "$q", function ($scope, $http, $q) {
+
+            $scope.imagesPerPage = 4;
+
             $scope.tabs = [
                 {
                     id: "home",
@@ -96,17 +111,20 @@
                 {
                     id: 0,
                     name: "Alpha",
-                    images: []
+                    images: [],
+                    totalImageCount: 0
                 },
                 {
                     id: 1,
                     name: "Bravo",
-                    images: []
+                    images: [],
+                    totalImageCount: 0
                 },
                 {
                     id: 2,
                     name: "Charlie",
-                    images: []
+                    images: [],
+                    totalImageCount: 0
                 }
             ];
 
@@ -130,7 +148,8 @@
                     }
                 }).then(function (response) {
                     var data = response.data;
-                    angular.forEach(data, function (image) {
+                    head.totalImageCount = data.total;
+                    angular.forEach(data.ids, function (image) {
                         $http({
                             url: "./image/",
                             method: "POST",
@@ -139,7 +158,10 @@
                                 id: image
                             }
                         }).then(function (response) {
-                            head.images.push(response.data);
+                            head.images.push({
+                                image: response.data,
+                                id: image
+                            });
                         }, function (err) {
                             swal("Oops!", "An unknown error occurred fetching your images! That's all we know :(", "error");
                         });
@@ -157,6 +179,26 @@
 
             };
 
+            $scope.numberOfPages = function (head) {
+                if (head.images == null || head.images == undefined) {
+                    return 1;
+                }
+                return Math.max(1, Math.ceil(head.totalImageCount / $scope.imagesPerPage));
+            };
+
+            $scope.activePages = [];
+
+            $scope.selectPage = function (head, i) {
+                $scope.activePages[head.id] = i;
+                head.images = [];
+                $scope.getImages(head, (i - 1) * $scope.imagesPerPage, $scope.imagesPerPage);
+            };
+
+            angular.forEach($scope.heads, function (head) {
+                $scope.activePages[head.id] = 1;
+                $scope.getImages(head, 0, $scope.imagesPerPage);
+            });
+
             $scope.upload = function () {
                 $http({
                     url: "./uploadHead/",
@@ -167,19 +209,17 @@
                     }
                 }).then(function (response) {
                     swal("Success!", "Successfully uploaded your picture! Thanks for contributing! ❤️", "success");
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 2000);
                 }, function (err) {
                     swal("Oops!", "An unknown error occurred uploading your picture! That's all we know :(", "error");
                 });
-                console.log($scope.uploadedImage);
             };
 
             $scope.imageSelectedHead = null;
 
             $scope.uploadedImage = null;
-
-            angular.forEach($scope.heads, function (head) {
-                $scope.getImages(head, 0, 20);
-            });
         }]);
     </script>
 
@@ -311,7 +351,12 @@
                     <div class="panel panel-primary">
                         <div class="panel-heading" style="text-align: center">{{head.name}}</div>
                         <div class="panel-body">
-                            <img ng-repeat="image in head.images track by $index" data-ng-src="data:image/jpg;base64,{{image}}" width="100%" style="margin-top:2px; margin-bottom:2px;" />
+                            <img ng-repeat="image in head.images | orderBy:'id':true" data-ng-src="data:image/jpg;base64,{{image.image}}" width="100%" style="margin-top: 2px; margin-bottom: 2px;" />
+                            <div class="pager" style="margin-bottom: 0px;">
+                                <ul class="pagination">
+                                    <li ng-class="{'active': activePages[head.id] == (i + 1)}" ng-repeat="i in [] | range:numberOfPages(head)" ng-click="selectPage(head, i + 1)"><a href="#">{{i + 1}}</a></li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>

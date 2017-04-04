@@ -6,11 +6,9 @@ using System.Threading.Tasks;
 
 namespace WestwoodHeadlessHunt.Data
 {
-    public class Head
+    public class ImageData
     {
+        public String image { get; set; }
         public int id { get; set; }
-        public String name { get; set; }
-        public ImageData[] images { get; set; }
-        public int totalImageCount { get; set; }
     }
 }

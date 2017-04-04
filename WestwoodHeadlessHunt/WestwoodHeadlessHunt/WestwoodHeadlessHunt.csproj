@@ -54,8 +54,10 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Data\Head.cs" />
     <Compile Include="Data\HeadGalleryRequest.cs" />
+    <Compile Include="Data\HeadGalleryResponse.cs" />
     <Compile Include="Data\HeadImageRequest.cs" />
     <Compile Include="Data\HeadUploadRequest.cs" />
+    <Compile Include="Data\ImageData.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -41,11 +41,24 @@ namespace WestwoodHeadlessHunt.Controllers
                     Directory.CreateDirectory(request.head.id.ToString());
                 }
                 List<int> ids = new List<int>();
+                int i = 0;
+                int start = request.index;
+                int end = request.index + request.amount;
                 foreach (String file in Directory.GetFiles(request.head.id.ToString()))
                 {
-                    ids.Add(int.Parse(Path.GetFileName(file)));
+                    if (i >= start && i < end)
+                    {
+                        ids.Add(int.Parse(Path.GetFileName(file)));
+                    }
+                    i++;
                 }
-                return Encoding.UTF8.GetBytes(Utility.serializeObjectToJSON(ids));
+                ids.Sort();
+                ids.Reverse();
+                return Encoding.UTF8.GetBytes(Utility.serializeObjectToJSON(new HeadGalleryResponse
+                {
+                    ids = ids,
+                    total = i
+                }));
             }
             catch (Exception e)
             {
@@ -100,6 +113,10 @@ namespace WestwoodHeadlessHunt.Controllers
                     throw new Exception("Invalid request parameter (request.head.id)!");
                 }
                 byte[] data = Convert.FromBase64String(request.image.Replace(JS_BASE64_PREFIX, String.Empty));
+                if (data.Length > 1024 * 1024 * 10)
+                {
+                    throw new Exception("Image is too large!");
+                }
                 Image image;
                 using (MemoryStream stream = new MemoryStream(data))
                 {
@@ -110,11 +127,10 @@ namespace WestwoodHeadlessHunt.Controllers
                 {
                     throw new Exception("Unsupported image format (" + image.RawFormat.ToString() + ")");
                 }
-                int id;
-                Random random = new Random();
+                int id = 0;
                 do
                 {
-                    id = random.Next();
+                    id++;
                 } while (File.Exists(Path.Combine(request.head.id.ToString(), id.ToString())));
 
                 File.WriteAllBytes(Path.Combine(request.head.id.ToString(), id.ToString()), data);
