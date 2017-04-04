@@ -11,6 +11,7 @@
 
     <!-- CSS resources -->
     <link rel="stylesheet" href="https://bootswatch.com/united/bootstrap.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css" crossorigin="anonymous">
     <!-- end CSS resources -->
 
     <!-- JS resources -->
@@ -19,11 +20,53 @@
         crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.6/angular-animate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
     <!-- end JS resources -->
 
     <!-- business logic -->
     <script>
         var app = angular.module("WestwoodHeadlessApp", ["ngAnimate"]);
+
+        app.directive('filereader', function ($q) {
+            var slice = Array.prototype.slice;
+
+            return {
+                restrict: 'A',
+                require: '?ngModel',
+                link: function (scope, element, attrs, ngModel) {
+                    if (!ngModel) return;
+
+                    ngModel.$render = function () { };
+
+                    element.bind('change', function (e) {
+                        var element = e.target;
+
+                        $q.all(slice.call(element.files, 0).map(readFile))
+                            .then(function (values) {
+                                if (element.multiple) ngModel.$setViewValue(values);
+                                else ngModel.$setViewValue(values.length ? values[0] : null);
+                            });
+
+                        function readFile(file) {
+                            var deferred = $q.defer();
+
+                            var reader = new FileReader();
+                            reader.onload = function (e) {
+                                deferred.resolve(e.target.result);
+                            };
+                            reader.onerror = function (e) {
+                                deferred.reject(e);
+                            };
+                            reader.readAsDataURL(file);
+
+                            return deferred.promise;
+                        }
+
+                    }); //change
+
+                } //link
+            }; //return
+        });
 
         app.controller("Controller", ["$scope", "$http", function ($scope, $http) {
             $scope.tabs = [
@@ -78,19 +121,31 @@
 
             $scope.getImages = function (head, index, amount) {
                 $http({
-                    url: "./headGallery",
-                    method: "GET",
+                    url: "./headGallery/",
+                    method: "POST",
                     data: {
                         head: head,
                         index: index,
                         amount: amount
                     }
                 }).then(function (response) {
-                    console.log(response);
-                    //do something with response.data here, ideally setting 'head.images'
+                    var data = response.data;
+                    angular.forEach(data, function (image) {
+                        $http({
+                            url: "./image/",
+                            method: "POST",
+                            data: {
+                                head: head,
+                                id: image
+                            }
+                        }).then(function (response) {
+                            head.images.push(response.data);
+                        }, function (err) {
+                            swal("Oops!", "An unknown error occurred fetching your images! That's all we know :(", "error");
+                        });
+                    });
                 }, function (err) {
-                    console.error("An error occured fetching head images!");
-                    console.error(err);
+                    swal("Oops!", "An unknown error occurred fetching your images! That's all we know :(", "error");
                 });
             };
 
@@ -98,7 +153,29 @@
                 $scope.imageSelectedHead = head;
             };
 
+            $scope.uploadImageUpdate = function () {
+
+            };
+
+            $scope.upload = function () {
+                $http({
+                    url: "./uploadHead/",
+                    method: "POST",
+                    data: {
+                        head: $scope.imageSelectedHead,
+                        image: $scope.uploadedImage
+                    }
+                }).then(function (response) {
+                    swal("Success!", "Successfully uploaded your picture! Thanks for contributing! ❤️", "success");
+                }, function (err) {
+                    swal("Oops!", "An unknown error occurred uploading your picture! That's all we know :(", "error");
+                });
+                console.log($scope.uploadedImage);
+            };
+
             $scope.imageSelectedHead = null;
+
+            $scope.uploadedImage = null;
 
             angular.forEach($scope.heads, function (head) {
                 $scope.getImages(head, 0, 20);
@@ -217,7 +294,7 @@
             <h2 style="text-align: center">Welcome to the Westwood Headless Hunt!</h2>
             <div class="panel panel-default" style="margin-top: 12px;">
                 <div class="panel-body">
-                    <h3>If you are already attuned with our idea, go ahead and enjoy, but if you are confused about what we are, you might want to visit the "What is this?" tab first &#10003;</h3>
+                    <h3>Looks like you found one of our heads, or heard about us from elsewhere. Welcome! If you're new here, you might want to visit the "What is this?" tab first &#10003;.</h3>
                 </div>
             </div>
         </div>
@@ -234,6 +311,7 @@
                     <div class="panel panel-primary">
                         <div class="panel-heading" style="text-align: center">{{head.name}}</div>
                         <div class="panel-body">
+                            <img ng-repeat="image in head.images track by $index" data-ng-src="data:image/jpg;base64,{{image}}" width="100%" style="margin-top:2px; margin-bottom:2px;" />
                         </div>
                     </div>
                 </div>
@@ -245,18 +323,24 @@
             <h3 style="text-align: center">Which head do you have? Take a look at the bottom of the head and select the name here!"</h3>
             <div class="row">
                 <div class="col-md-4" ng-repeat="head in heads">
-                    <button class="btn btn-primary btn-lg" style="width: 100%" ng-click="imageSelectHead(head)">
+                    <button class="btn btn-primary btn-lg" style="width: 100%; margin-bottom: 2px;" ng-click="imageSelectHead(head)">
                         {{head.name}}
                     </button>
                 </div>
             </div>
             <div class="panel panel-default" style="margin-top: 12px;" ng-hide="imageSelectedHead == null">
                 <div class="panel-body">
-                    <h3></h3>
                     <div class="row">
                         <div class="col-md-12">
-                            <input type="file" name="file" id="file" class="inputfile" accept="image/*" capture="camera"></input>
+                            <input type="file" name="file" ng-model="uploadedImage" id="file" class="inputfile" accept="image/*" capture="camera" onchange="angular.element(this).scope().uploadImageUpdate()" filereader></input>
                             <label for="file">Upload a picture of {{imageSelectedHead.name}}</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button class="btn btn-primary btn-lg" ng-show="uploadedImage != null" style="width: 100%; margin-bottom: 2px;" ng-click="upload()">
+                                Upload!
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -267,10 +351,13 @@
             <h2 style="text-align: center">What is this?</h2>
             <div class="panel panel-default" style="margin-top: 12px;">
                 <div class="panel-body">
-                    <h3><strong>Styrofoam Heads</strong>..... You take pictures with them</h3>
-                    <h4>You don't have to, if you don't necissarily want to. (•_•) ( •_•)>⌐■-■ (⌐■_■)</h4>
+                    <h3 style="text-align: center">We've scattered a few <strong>Warrior Heads</strong> around Westwood, and want to see how many classes and students they can visit!</h3>
+                    <h4 style="text-align: center">If you find one, feel free to be as creative as you want with the head, grab your sharpies, paint, or whatever you want to add and let our little buddies be your canvas!
+                        Also, please upload pictures of our little Warriors as you find them (class selfies are totally awesome too, so we can see all the different people who got to see the heads!)
+                        If you would like to check out pictures that other students have posted with the heads, check out our <a ng-click="selectTab(1)">pictures</a> tab!
+                    </h4>
                     <br>
-                    <h5>However, don't be mean to our stuffing brothers (and sisters[Gender equality! &#x1f44d;])</h5>
+                    <h5 style="text-align: center">P.S. Please don't be mean to our styrofoam brothers and sisters, they have feelings too!</h5>
                 </div>
             </div>
         </div>
