@@ -2,12 +2,18 @@
 <html lang="en">
 
 <head>
+    <!--
+        "Who am I?
+        None of your business!"
+        
+        - d4b5183bed9963bfb122bd24c2cae0035d59b0c683bff4a78a3f6c57cc46f2bc      
+    -->
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>Westwood Headless Hunt</title>
-    <link rel="shortcut icon" type="image/png" href="./Favicon.png" />
+    <link rel="shortcut icon" type="image/png" href="./favicon.png" />
 
     <!-- CSS resources -->
     <link rel="stylesheet" href="https://bootswatch.com/united/bootstrap.min.css" crossorigin="anonymous">
@@ -110,19 +116,19 @@
             $scope.heads = [
                 {
                     id: 0,
-                    name: "Alpha",
+                    name: "Waldo the Warrior",
                     images: [],
                     totalImageCount: 0
                 },
                 {
                     id: 1,
-                    name: "Bravo",
+                    name: "Alfonzo",
                     images: [],
                     totalImageCount: 0
                 },
                 {
                     id: 2,
-                    name: "Charlie",
+                    name: "Waverly the Warrior",
                     images: [],
                     totalImageCount: 0
                 }
@@ -369,7 +375,7 @@
 
         <div ng-show="activeTab.id == 'upload'">
             <h2 style="text-align: center">Uploading a picture? You came to the right place!</h2>
-            <h3 style="text-align: center">Which head do you have? Take a look at the bottom of the head and select the name here!"</h3>
+            <h3 style="text-align: center">Which head do you have? Take a look at the bottom of the head, select the name here, and upload your picture!</h3>
             <div class="row">
                 <div class="col-md-4" ng-repeat="head in heads">
                     <button class="btn btn-primary btn-lg" style="width: 100%; margin-bottom: 2px;" ng-click="imageSelectHead(head)">
@@ -407,6 +413,7 @@
                     </h4>
                     <br>
                     <h5 style="text-align: center">P.S. Please don't be mean to our styrofoam brothers and sisters, they have feelings too!</h5>
+                    <br>
                 </div>
             </div>
         </div>
