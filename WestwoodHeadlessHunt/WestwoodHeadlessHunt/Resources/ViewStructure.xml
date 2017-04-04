@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<view>
+  <resource
+    path="index.html"
+    location="WestwoodHeadlessHunt.View.index.html"
+    content-type="text/html"
+    situational="homepage">
+  </resource>
+  <resource
+    path="404.html"
+    location="WestwoodHeadlessHunt.View.404.html"
+    content-type="text/html"
+    situational="404">
+  </resource>
+  <resource
+    path="favicon.png"
+    location="WestwoodHeadlessHunt.View.favicon.png"
+    content-type="image/png">
+  </resource>
+</view>
