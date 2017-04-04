@@ -171,11 +171,19 @@
                             head.images = $filter('orderBy', true)(head.images, 'id')
                             head.images.reverse();
                         }, function (err) {
-                            swal("Oops!", "An unknown error occurred fetching your images! That's all we know :(", "error");
+                            var data = err.data;
+                            if (data.error == null || data.error == undefined) {
+                                data.error = "Unknown error";
+                            }
+                            swal("Oops!", "An error occurred fetching your images! (" + data.error + ") :(", "error");
                         });
                     });
                 }, function (err) {
-                    swal("Oops!", "An unknown error occurred fetching your images! That's all we know :(", "error");
+                    var data = err.data;
+                    if (data.error == null || data.error == undefined) {
+                        data.error = "Unknown error";
+                    }
+                    swal("Oops!", "An error occurred fetching your images! (" + data.error + ") :(", "error");
                 });
             };
 
@@ -184,7 +192,36 @@
             };
 
             $scope.uploadImageUpdate = function () {
-
+                swal({
+                  title: "Ready to post?",
+                  text: "Click upload to post your picture!",
+                  type: "info",
+                  showCancelButton: false,
+                  closeOnConfirm: false,
+                  showLoaderOnConfirm: true,
+                  confirmButtonText: "Upload"
+                },
+                function() {
+                    $http({
+                        url: "./uploadHead/",
+                        method: "POST",
+                        data: {
+                            head: $scope.imageSelectedHead,
+                            image: $scope.uploadedImage
+                        }
+                    }).then(function (response) {
+                        swal("Success!", "Successfully uploaded your picture! Thanks for contributing! ❤️", "success");
+                        setTimeout(function () {
+                            window.location.reload();
+                        }, 2000);
+                    }, function (err) {
+                        var data = err.data;
+                        if (data.error == null || data.error == undefined) {
+                            data.error = "Unknown error";
+                        }
+                        swal("Oops!", "An error occurred uploading your picture! (" + data.error + ") :(", "error");
+                    });
+                });
             };
 
             $scope.numberOfPages = function (head) {
@@ -206,24 +243,6 @@
                 $scope.activePages[head.id] = 1;
                 $scope.getImages(head, 0, $scope.imagesPerPage);
             });
-
-            $scope.upload = function () {
-                $http({
-                    url: "./uploadHead/",
-                    method: "POST",
-                    data: {
-                        head: $scope.imageSelectedHead,
-                        image: $scope.uploadedImage
-                    }
-                }).then(function (response) {
-                    swal("Success!", "Successfully uploaded your picture! Thanks for contributing! ❤️", "success");
-                    setTimeout(function () {
-                        window.location.reload();
-                    }, 2000);
-                }, function (err) {
-                    swal("Oops!", "An unknown error occurred uploading your picture! That's all we know :(", "error");
-                });
-            };
 
             $scope.imageSelectedHead = null;
 
@@ -393,13 +412,6 @@
                             <label for="file">Upload a picture of {{imageSelectedHead.name}}</label>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <button class="btn btn-primary btn-lg" ng-show="uploadedImage != null" style="width: 100%; margin-bottom: 2px;" ng-click="upload()">
-                                Upload!
-                            </button>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -415,6 +427,7 @@
                     </h4>
                     <br>
                     <h5 style="text-align: center">P.S. Please don't be mean to our styrofoam brothers and sisters, they have feelings too!</h5>
+                    <h5 style="text-align: center">Let your friends and classmates know about your little head's journey, and try to keep the heads traveling, and pass it on!</h5>
                     <br>
                 </div>
             </div>

@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Data\ErrorResponse.cs" />
     <Compile Include="Data\Head.cs" />
     <Compile Include="Data\HeadGalleryRequest.cs" />
     <Compile Include="Data\HeadGalleryResponse.cs" />

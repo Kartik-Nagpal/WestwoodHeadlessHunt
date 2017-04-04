@@ -16,7 +16,7 @@ namespace WestwoodHeadlessHunt.Controllers
 {
     public static class HomeController
     {
-        private static readonly String JS_BASE64_PREFIX = "data:image/jpeg;base64,";
+        private static readonly String JS_BASE64_PREFIX_JPEG = "data:image/jpeg;base64,";
 
         private static readonly ILog Logger = LogManager.GetLogger(typeof(HomeController));
 
@@ -70,7 +70,10 @@ namespace WestwoodHeadlessHunt.Controllers
             {
                 Logger.Warn("Faulty request received! (" + e.Message + ")");
                 context.Response.StatusCode = 400;
-                return new byte[] { };
+                return Encoding.UTF8.GetBytes(Utility.serializeObjectToJSON(new ErrorResponse
+                {
+                    error = e.Message
+                }));
             }
         }
 
@@ -100,7 +103,10 @@ namespace WestwoodHeadlessHunt.Controllers
             {
                 Logger.Warn("Faulty request received! (" + e.Message + ")");
                 context.Response.StatusCode = 400;
-                return new byte[] { };
+                return Encoding.UTF8.GetBytes(Utility.serializeObjectToJSON(new ErrorResponse
+                {
+                    error = e.Message
+                }));
             }
         }
 
@@ -118,16 +124,16 @@ namespace WestwoodHeadlessHunt.Controllers
                 {
                     throw new Exception("Invalid request parameter (request.head.id)!");
                 }
-                byte[] data = Convert.FromBase64String(request.image.Replace(JS_BASE64_PREFIX, String.Empty));
+                if (!request.image.Contains(JS_BASE64_PREFIX_JPEG))
+                {
+                    throw new Exception("Invalid picture upload type! Make sure you're uploading a JPEG!");
+                }
+                byte[] data = Convert.FromBase64String(request.image.Replace(JS_BASE64_PREFIX_JPEG, String.Empty));
                 if (data.Length > 1024 * 1024 * 10)
                 {
                     throw new Exception("Image is too large!");
                 }
-                Image image;
-                using (MemoryStream stream = new MemoryStream(data))
-                {
-                    image = Image.FromStream(stream);
-                }
+                Image image = Image.FromStream(new MemoryStream(data));
 
                 if (!ImageFormat.Jpeg.Equals(image.RawFormat))
                 {
@@ -139,15 +145,37 @@ namespace WestwoodHeadlessHunt.Controllers
                     id++;
                 } while (File.Exists(Path.Combine(request.head.id.ToString(), id.ToString())));
 
-                File.WriteAllBytes(Path.Combine(request.head.id.ToString(), id.ToString()), data);
+                System.Drawing.Imaging.Encoder encoder = System.Drawing.Imaging.Encoder.Quality;
+
+                EncoderParameters encoderParameters = new EncoderParameters(1);
+                EncoderParameter encoderParameter = new EncoderParameter(encoder, 10L);
+                encoderParameters.Param[0] = encoderParameter;
+
+                image.Save(Path.Combine(request.head.id.ToString(), id.ToString()), GetEncoder(ImageFormat.Jpeg), encoderParameters);
                 return new byte[] { };
             }
             catch (Exception e)
             {
-                Logger.Warn("Faulty request received! (" + e.Message + ")");
+                Logger.Warn("Faulty request received! (" + e.Message + ") " + e.StackTrace);
                 context.Response.StatusCode = 400;
-                return new byte[] { };
+                return Encoding.UTF8.GetBytes(Utility.serializeObjectToJSON(new ErrorResponse
+                {
+                    error = e.Message
+                }));
             }
+        }
+
+        private static ImageCodecInfo GetEncoder(ImageFormat format)
+        {
+            ImageCodecInfo[] codecs = ImageCodecInfo.GetImageDecoders();
+            foreach (ImageCodecInfo codec in codecs)
+            {
+                if (codec.FormatID == format.Guid)
+                {
+                    return codec;
+                }
+            }
+            return null;
         }
     }
 }
