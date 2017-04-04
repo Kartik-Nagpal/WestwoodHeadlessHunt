@@ -78,7 +78,7 @@
 
             $scope.getImages = function(head, index, amount) {
                 $http({
-                    url: "/headGallery",
+                    url: "./headGallery",
                     method: "GET",
                     data: {
                         head: head,
@@ -86,10 +86,11 @@
                         amount: amount
                     }
                 }).then(function(response) {
-
+                    console.log(response);
+                    //do something with response.data here, ideally setting 'head.images'
                 }, function(err) {
-                    alert("An error occured uploading your image!");
-                    console.log(err);
+                    console.error("An error occured fetching head images!");
+                    console.error(err);
                 });
             };
 
@@ -98,6 +99,10 @@
             };
 
             $scope.imageSelectedHead = null;
+            
+            angular.forEach($scope.heads, function(head) {
+                $scope.getImages(head, 0, 20);
+            });
         }]);
     </script>
 
