@@ -44,11 +44,17 @@ namespace WestwoodHeadlessHunt.Controllers
                 int i = 0;
                 int start = request.index;
                 int end = request.index + request.amount;
+                List<int> temp = new List<int>();
                 foreach (String file in Directory.GetFiles(request.head.id.ToString()))
+                {
+                    temp.Add(int.Parse(Path.GetFileName(file)));
+                }
+                temp.Reverse();
+                foreach (int n in temp)
                 {
                     if (i >= start && i < end)
                     {
-                        ids.Add(int.Parse(Path.GetFileName(file)));
+                        ids.Add(n);
                     }
                     i++;
                 }

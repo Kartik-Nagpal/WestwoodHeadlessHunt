@@ -86,7 +86,7 @@
             }; //return
         });
 
-        app.controller("Controller", ["$scope", "$http", "$q", function ($scope, $http, $q) {
+        app.controller("Controller", ["$scope", "$http", "$filter", function ($scope, $http, $filter) {
 
             $scope.imagesPerPage = 4;
 
@@ -168,6 +168,8 @@
                                 image: response.data,
                                 id: image
                             });
+                            head.images = $filter('orderBy', true)(head.images, 'id')
+                            head.images.reverse();
                         }, function (err) {
                             swal("Oops!", "An unknown error occurred fetching your images! That's all we know :(", "error");
                         });
@@ -361,7 +363,7 @@
                     <div class="panel panel-primary">
                         <div class="panel-heading" style="text-align: center">{{head.name}}</div>
                         <div class="panel-body">
-                            <img ng-repeat="image in head.images | orderBy:'id':true" data-ng-src="data:image/jpg;base64,{{image.image}}" width="100%" style="margin-top: 2px; margin-bottom: 2px;" />
+                            <img ng-repeat="image in head.images | orderBy:'idd'" data-ng-src="data:image/jpg;base64,{{image.image}}" width="100%" style="margin-top: 2px; margin-bottom: 2px;" />
                             <div class="pager" style="margin-bottom: 0px;">
                                 <ul class="pagination">
                                     <li ng-class="{'active': activePages[head.id] == (i + 1)}" ng-repeat="i in [] | range:numberOfPages(head)" ng-click="selectPage(head, i + 1)"><a href="#">{{i + 1}}</a></li>
